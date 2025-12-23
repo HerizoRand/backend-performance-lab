@@ -68,7 +68,7 @@ This approach helps avoid premature optimization and keeps the focus on measurab
 
 ## Tools Used
 
-- Node.js / Express
+- Node.js / Fastify
 - Autocannon / k6
 - Redis
 - PostgreSQL
