@@ -23,6 +23,7 @@
     "redis": "^5.10.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.1.0",
     "autocannon": "^8.0.0",
     "clinic": "^13.0.0"
   }
