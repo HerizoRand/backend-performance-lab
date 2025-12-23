@@ -34,12 +34,13 @@ a practical understanding of system design trade-offs.
 
 Each folder contains an isolated experiment with its own README and results.
 
-backend-performance-lab
+```text
 ├── read-load-test/ # High read traffic on an API endpoint
 ├── write-load-test/ # High write traffic and database pressure
 ├── cache-impact/ # Redis cache vs direct database access
 ├── queue-impact/ # Synchronous writes vs background processing
 ├── db-index-test/ # Impact of database indexes on query performance
+```
 
 ## Methodology
 
