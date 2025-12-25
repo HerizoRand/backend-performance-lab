@@ -33,7 +33,7 @@ a practical understanding of system design trade-offs.
 ## Experiments Overview
 
 Each folder contains an isolated experiment with its own README and results.
-
+   
 ```text
 ├── read-load-test/ # High read traffic on an API endpoint
 ├── write-load-test/ # High write traffic and database pressure
