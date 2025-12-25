@@ -29,13 +29,12 @@ fastify.get('/user/:id', async (request, reply) => {
 fastify.get('/user/cached/:id', async (request, reply) => {
   const {id} = request.params
   const cacheKey = `user:${id}`
-
   let cachedData = null
 
   try {
-    const cachedData = await client.get(cacheKey);
+    cachedData = await client.get(cacheKey);
   } catch (err) {
-    request.log.error({ err }, "Redis is down, falling back to DB");
+    request.log.error({ err }, "Redis unreachable, falling back to PostgreSQL");
   }
 
   if(cachedData) {
@@ -45,22 +44,18 @@ fastify.get('/user/cached/:id', async (request, reply) => {
 
   const result = await pool.query(
     `SELECT users.*, messages.content
-    FROM users LEFT JOIN messages
-    ON users.id = messages.user_id
-    WHERE users.id = $1
-    `,
-    [id]
+    FROM users LEFT JOIN messages ON users.id = messages.user_id
+    WHERE users.id = $1`,[id]
   );
 
   try {
-    // Idem pour l'écriture : si ça échoue, tant pis, l'utilisateur a quand même ses données
     await client.set(cacheKey, JSON.stringify(result.rows), { EX: 60 });
   } catch (err) {
-    request.log.error({ err }, "Could not save to Redis");
+    request.log.error({ err }, "Failed to update cache");
   }
+
   reply.header("X-Cache", "MISS");
   return result.rows
-  
 })
 
 fastify.addHook("onClose", async (instance) => {
