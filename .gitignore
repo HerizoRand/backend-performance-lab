@@ -1,1 +1,3 @@
 /node_modules
+experiments/read-load-test/results/baseline.json
+experiments/read-load-test/results/cached.json
