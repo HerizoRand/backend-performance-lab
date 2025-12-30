@@ -58,6 +58,53 @@ fastify.get('/user/cached/:id', async (request, reply) => {
   return result.rows
 })
 
+const opts = {
+  schema: {
+    body: {
+      type: "object",
+      required: ["name", "email"],
+      properties: {
+        name: { type: "string" },
+        email: { type: "string" },
+      },
+    },
+  },
+};
+
+fastify.post("/", opts, async (request, reply) => {
+  const response = request.body;
+  try {
+    // action dans la db
+    const res = await pool.query(
+      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING * `,
+      [response.name, response.email]
+    );
+
+    const user = res.rows[0];
+
+    const cacheKey = `user:${user.id}`;
+    await client.del(cacheKey);
+
+    return reply.code(201).send(res.rows[0]);
+  } catch (error) {
+    if (error.code === "23505") {
+      return reply.code(409).send({ error: "Email already exists" });
+    }
+
+    fastify.log.error(error);
+    return reply.code(500).send({ error: "Internal Server Error" });
+  }
+});
+
+fastify.delete("/:id", async (request, reply) => {
+  const { id } = request.params;
+  pool.query(`DELETE from users WHERE id= $1`, [id]);
+
+  const cacheKey = `user:${id}`;
+  await client.del(cacheKey);
+  return reply.code(204).send();
+});
+
 fastify.addHook("onClose", async (instance) => {
   console.log("Shutting down connections...");
   await client.quit();
